@@ -4499,14 +4499,15 @@ haxe.format.JsonParser.prototype = _hx_a(
   'parseRec', function(self)
     while (true) do
       local index = (function()
-      local _hx_obj = self;
-      local _hx_fld = 'pos';
-      local _ = _hx_obj[_hx_fld];
-      _hx_obj[_hx_fld] = _hx_obj[_hx_fld]  + 1;
-       return _;
-       end)();
+        local _hx_obj = self;
+        local _hx_fld = 'pos';
+        local _ = _hx_obj[_hx_fld];
+        _hx_obj[_hx_fld] = _hx_obj[_hx_fld]  + 1;
+        return _;
+      end)();
       local c = _G.string.byte(self.str,index + 1);
       local c1 = c;
+      --print(c)
       if (c1) == 9 or (c1) == 10 or (c1) == 13 or (c1) == 32 then
       elseif (c1) == 34 then
         do return self:parseString() end;
@@ -8544,8 +8545,9 @@ ink.runtime.IProxy.prototype = _hx_a(
 )
 
 ink.runtime.SystemException.new = function(msg)
-  local self = _hx_new(ink.runtime.SystemException.prototype)
-  ink.runtime.SystemException.super(self,msg)
+  local self = {}
+  -- local self = _hx_new(ink.runtime.SystemException.prototype)
+  -- ink.runtime.SystemException.super(self,msg)
   return self
 end
 ink.runtime.SystemException.super = function(self,msg)
@@ -10232,12 +10234,15 @@ ink.runtime.Story.prototype = _hx_a(
     do return _G.table.concat(sb.b) end
   end,
   'NextContent', function(self)
+    _K.debugCnt = _K.debugCnt + 1
+    --print(_K.debugCnt)
     self._state:set_previousContentObject(self._state:get_currentContentObject());
     if (self._state.divertedTargetObject ~= nil) then
       self._state:set_currentContentObject(self._state.divertedTargetObject);
       self._state.divertedTargetObject = nil;
       self:VisitChangedContainersDueToDivert();
       if (self._state:get_currentContentObject() ~= nil) then
+        print("end1")
         do return end;
       end;
     end;
@@ -10257,14 +10262,20 @@ ink.runtime.Story.prototype = _hx_a(
         end;
       end;
       if (didPop and (self._state:get_currentContentObject() ~= nil)) then
+        print("didPop")
         self:NextContent();
+      else
+       -- print("end2")
       end;
+    else
+      --print("end3")
     end;
   end,
   'IncrementContentPointer', function(self)
     local successfulIncrement = true;
     local currEl = self._state.callStack:get_currentElement();
     currEl.currentContentIndex = currEl.currentContentIndex + 1;
+    --print(currEl.currentContentIndex, currEl.currentContainer._content.length)
     while (currEl.currentContentIndex >= currEl.currentContainer._content.length) do
       successfulIncrement = false;
       local obj = currEl.currentContainer.parent;
@@ -10304,17 +10315,21 @@ ink.runtime.Story.prototype = _hx_a(
     do return true end
   end,
   'VisitCountForContainer', function(self,container)
+    print("VisitCountForContainer")
     if (not container.visitsShouldBeCounted) then
-      self:ErrorThrow("Read count for target (" .. container.name .. " - on " .. Std.string(container:get_debugMetadata()) .. ") unknown. The story may need to be compiled with countAllVisits flag (-c).");
+      print("A")
+      --self:ErrorThrow("Read count for target (" .. container.name .. " - on " .. Std.string(container:get_debugMetadata()) .. ") unknown. The story may need to be compiled with countAllVisits flag (-c).");
       do return 0 end;
     end;
     local count = 0;
     local containerPathStr = container:get_path():toString();
     local this1 = self._state.visitCounts;
     local tryCount = this1.v[containerPathStr];
+    print("B")
     if ((tryCount ~= nil) and not Math.isNaN(tryCount)) then
       count = tryCount;
     end;
+    print("VisitCountForContainer end")
     do return count end
   end,
   'IncrementVisitCountForContainer', function(self,container)
@@ -10351,6 +10366,7 @@ ink.runtime.Story.prototype = _hx_a(
     end;
   end,
   'NextSequenceShuffleIndex', function(self)
+    print("NextSequenceShuffleIndex")
     local obj = self._state:PopEvaluationStack();
     local numElementsIntVal = (function()
       local _hx_1
@@ -10360,6 +10376,7 @@ ink.runtime.Story.prototype = _hx_a(
       return _hx_1
     end )();
     if (numElementsIntVal == nil) then
+      print("C")
       self:ErrorThrow("expected number of elements in sequence for shuffle index");
       do return 0 end;
     end;
@@ -10406,9 +10423,11 @@ ink.runtime.Story.prototype = _hx_a(
       local chosenIndex = unpickedIndices[chosen];
       unpickedIndices:splice(chosen,1);
       if (i2 == iterationIndex) then
+        print("D")
         do return chosenIndex end;
       end;
       end;
+    print("_G.error")
     _G.error(ink.runtime.SystemException.new("Should never reach here"),0);
   end,
   'ErrorThrow', function(self,message,useEndLineNumber)
@@ -10493,6 +10512,8 @@ ink.runtime.Story.prototype = _hx_a(
     do return self:ContinueInternal() end
   end,
   'ContinueInternal', function(self)
+    print("ContinueInternal")
+    _K.debugCnt = 0
     if (not self:get_canContinue()) then
       _G.error(ink.runtime.StoryException.new("Can't continue - should check canContinue before calling Continue"),0);
     end;
@@ -10506,6 +10527,7 @@ ink.runtime.Story.prototype = _hx_a(
       if ((count - 1) > 99999) then
         _G.error("Count iteration limit reached",0);
       end;
+      print("step", count)
       self:Step();
       if (not self:get_canContinue()) then
         self:TryFollowDefaultInvisibleChoice();
@@ -10517,6 +10539,7 @@ ink.runtime.Story.prototype = _hx_a(
           if (currText ~= stateAtLastNewline:get_currentText()) then
             if ((currText.length >= prevTextLength) and (currText:charAt(prevTextLength - 1) == "\n")) then
               self:RestoreStateSnapshot(stateAtLastNewline);
+              print("break1")
               break;
             else
               stateAtLastNewline = nil;
@@ -10532,9 +10555,11 @@ ink.runtime.Story.prototype = _hx_a(
         end;
       end;
       if (not self:get_canContinue()) then
+        print("break2")
         break;
       end;
       end;
+    print("end while")
     if (stateAtLastNewline ~= nil) then
       self:RestoreStateSnapshot(stateAtLastNewline);
     end;
@@ -10594,6 +10619,7 @@ ink.runtime.Story.prototype = _hx_a(
     local shouldAddToStream = true;
     local currentContentObj = self._state:get_currentContentObject();
     if (currentContentObj == nil) then
+      --print("step end1")
       do return end;
     end;
     local currentContainer = (function()
@@ -10612,18 +10638,26 @@ ink.runtime.Story.prototype = _hx_a(
       self._state.callStack:get_currentElement().currentContentIndex = 0;
       self._state.callStack:get_currentElement().currentContainer = currentContainer;
       currentContainer = (function()
-        local _hx_2
-        if (lua.Boot.__instanceof(currentContentObj,ink.runtime.Container)) then
-        _hx_2 = currentContentObj; else
-        _hx_2 = nil; end
-        return _hx_2
-      end )();
+          local _hx_2
+          if (lua.Boot.__instanceof(currentContentObj,ink.runtime.Container)) then
+            _hx_2 = currentContentObj;
+             --print("while", currentContentObj._content.length )
+          else
+            _hx_2 = nil; 
+          end
+          return _hx_2
+        end )();
       end;
+    --print("step while end")
     currentContainer = self._state.callStack:get_currentElement().currentContainer;
+    --print("0")
     local isLogicOrFlowControl = self:PerformLogicAndFlowControl(currentContentObj);
+    --print("00")
     if (self._state:get_currentContentObject() == nil) then
+      --print("step end2")
       do return end;
     end;
+    --print("1")
     if (isLogicOrFlowControl) then
       shouldAddToStream = false;
     end;
@@ -10634,6 +10668,7 @@ ink.runtime.Story.prototype = _hx_a(
       _hx_3 = nil; end
       return _hx_3
     end )();
+    --print("2")
     if (choicePoint ~= nil) then
       local choice = self:ProcessChoice(choicePoint);
       if (choice ~= nil) then
@@ -10642,9 +10677,11 @@ ink.runtime.Story.prototype = _hx_a(
       currentContentObj = nil;
       shouldAddToStream = false;
     end;
+    --print("3")
     if (lua.Boot.__instanceof(currentContentObj,ink.runtime.Container)) then
       shouldAddToStream = false;
     end;
+    --print("4")
     if (shouldAddToStream) then
       local varPointer = (function()
         local _hx_4
@@ -10663,7 +10700,9 @@ ink.runtime.Story.prototype = _hx_a(
         self._state:PushToOutputStream(currentContentObj);
       end;
     end;
+    --print("step nextcontent")
     self:NextContent();
+    --print("step nextcotent end")
     local controlCmd = (function()
       local _hx_5
       if (lua.Boot.__instanceof(currentContentObj,ink.runtime.ControlCommand)) then
@@ -10674,6 +10713,7 @@ ink.runtime.Story.prototype = _hx_a(
     if ((controlCmd ~= nil) and (controlCmd.commandType == 14)) then
       self._state.callStack:PushThread();
     end;
+    --print("step end3")
   end,
   'VisitContainer', function(self,container,atStart)
     if (not container.countingAtStartOnly or atStart) then
@@ -10754,7 +10794,9 @@ ink.runtime.Story.prototype = _hx_a(
     if (contentObj == nil) then
       do return false end;
     end;
+    print("PerformLogicAndFlowControl")
     if (lua.Boot.__instanceof(contentObj,ink.runtime.Divert)) then
+      print("0")
       local currentDivert = contentObj;
       if (currentDivert.isConditional) then
         local conditionValue = self._state:PopEvaluationStack();
@@ -10763,6 +10805,7 @@ ink.runtime.Story.prototype = _hx_a(
         end;
       end;
       if (currentDivert:get_hasVariableTarget()) then
+        print("A")
         local varName = currentDivert.variableDivertName;
         local varContents = self._state.variablesState:GetVariableWithName(varName);
         if (not lua.Boot.__instanceof(varContents,ink.runtime.DivertTargetValue)) then
@@ -10804,10 +10847,12 @@ ink.runtime.Story.prototype = _hx_a(
       end;
       do return true end;
     else
+      print("1")
       if (lua.Boot.__instanceof(contentObj,ink.runtime.ControlCommand)) then
         local evalCommand = contentObj;
         local _g = evalCommand.commandType;
         local _g1 = _g;
+        print("_g1", _g1)
         if (_g1) == 0 then
           if (self._state:get_inExpressionEvaluation() ~= false) then
             _G.error("Already in expression evaluation?",0);
@@ -10858,6 +10903,7 @@ ink.runtime.Story.prototype = _hx_a(
           end;
           self._state:set_inExpressionEvaluation(false);
         elseif (_g1) == 8 then
+          print("8")
           local contentStackForString = haxe.ds.GenericStack.new();
           local outputCountConsumed = 0;
           local i = self._state:get_outputStream().length - 1;
@@ -10923,11 +10969,15 @@ ink.runtime.Story.prototype = _hx_a(
             self._state:PushEvaluationStack(ink.runtime.IntValue.new(turnCount));
           end;
         elseif (_g1) == 12 then
+          print("--12--")
           local count = self:VisitCountForContainer(self._state:get_currentContainer()) - 1;
           self._state:PushEvaluationStack(ink.runtime.IntValue.new(count));
+          print("--12-- end")          
         elseif (_g1) == 13 then
+          print("--13--")
           local shuffleIndex = self:NextSequenceShuffleIndex();
           self._state:PushEvaluationStack(ink.runtime.IntValue.new(shuffleIndex));
+          print("--13--end")
         elseif (_g1) == 14 then
         elseif (_g1) == 15 then
           if (self._state.callStack:get_canPopThread()) then
@@ -10938,8 +10988,10 @@ ink.runtime.Story.prototype = _hx_a(
         elseif (_g1) == 16 then
           self._state:ForceEndFlow();else
         self:ErrorThrow("unhandled ControlCommand: " .. Std.string(evalCommand)); end;
+        print("1 end")
         do return true end;
       else
+        print("2")
         if (lua.Boot.__instanceof(contentObj,ink.runtime.VariableAssignment)) then
           local varAss = contentObj;
           local assignedVal = self._state:PopEvaluationStack();
