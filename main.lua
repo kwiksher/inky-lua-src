@@ -1,6 +1,8 @@
 local widget = require( "widget" )
-_K = {}
+_K = {debugCnt=0}
 _K.utils  = require("dmc_corona.dmc_utils")
+
+_G.error = print
 
 local tfd = require("plugin.tinyfiledialogs")
 --
@@ -43,10 +45,12 @@ end
 
 function storyGroup:continueToNextChoice()
     while (myStory:get_canContinue()) do
-        local grafs = _K.utils.split(myStory:Continue(), "\n")
+        local _raw = myStory:Continue()
+        --print(_raw)
+        local grafs = _K.utils.split(_raw, "\n")
+        _K.utils.print(grafs)
         for k, text in pairs(grafs) do
             if (text)  then
-               print(text) -- insertBefore($choices)
                self:add(text)
             end
         end
@@ -67,9 +71,9 @@ end
 --
 -----------------
 function storyGroup:add(text)
-    local numChildren = self.scrollView:getView().numChildren
-    print("num", numChildren)
-    local obj = display.newText(text, self.const_X, self.const_Y * numChildren, native.SystemFont, 16 )
+    local numChildren = self.scrollView._collectorGroup.numChildren
+    --print("num", numChildren)
+    local obj = display.newText(text, self.const_X, self.const_Y + self.const_LineSpace * numChildren, native.SystemFont, 16 )
     obj:setFillColor( 0.2, 0.6, 0.8 )
     self.scrollView:insert(obj)
 end
@@ -138,7 +142,7 @@ end
 --
 -----------------
 function choicesGroup:add(text)
-    local obj = display.newText("text", self.const_X,  self.const_Y + self.numChildren* self.const_LineSpace, native.systemFont, 14)
+    local obj = display.newText(text, self.const_X,  self.const_Y + self.numChildren* self.const_LineSpace, native.systemFont, 14)
     obj:setFillColor( 0, 0, 1 )
     print(obj.x, obj.y)
     self:insert(obj)
@@ -165,7 +169,8 @@ local file = io.open( filePath, "r" )
 if file then
 	-- read all contents of file into a string
 	local contents = file:read( "*a" )
-	print( "Contents of " .. filePath )
+    print( "Contents of " .. filePath )
+    print("")
 	--print( contents )
 	io.close( file )
     --
