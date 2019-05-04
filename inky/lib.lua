@@ -65,7 +65,7 @@ local Date = _hx_e()
 local lua = {}
 lua.lib = {}
 lua.lib.lrexlib = {}
-lua.lib.lrexlib.Rex = _G.require("rex_pcre")
+lua.lib.lrexlib.Rex = _G.require("inky.rex_pcre")
 local EReg = _hx_e()
 local InkRuntime = _hx_e()
 local IntIterator = _hx_e()
@@ -194,24 +194,24 @@ lua._NativeIterator.NativeIterator_Impl_ = _hx_e()
 lua.Thread = _hx_e()
 lua.lib.environ = {}
 
-lua.lib.environ.Environ = _G.require("environ.process")
+lua.lib.environ.Environ = _G.require("inky.environ.process")
 lua.lib.luasocket = {}
 lua.lib.luasocket.Socket = _G.require("socket")
 lua.lib.luv = {}
-lua.lib.luv.Handle = _G.require("luv")
-lua.lib.luv.Loop = _G.require("luv")
-lua.lib.luv.Misc = _G.require("luv")
-lua.lib.luv.Stream = _G.require("luv")
-lua.lib.luv.Pipe = _G.require("luv")
-lua.lib.luv.Process = _G.require("luv")
-lua.lib.luv.Request = _G.require("luv")
-lua.lib.luv.Signal = _G.require("luv")
-lua.lib.luv.Thread = _G.require("luv")
-lua.lib.luv.Timer = _G.require("luv")
+lua.lib.luv.Handle = _G.require("inky.luv")
+lua.lib.luv.Loop = _G.require("inky.luv")
+lua.lib.luv.Misc = _G.require("inky.luv")
+lua.lib.luv.Stream = _G.require("inky.luv")
+lua.lib.luv.Pipe = _G.require("inky.luv")
+lua.lib.luv.Process = _G.require("inky.luv")
+lua.lib.luv.Request = _G.require("inky.luv")
+lua.lib.luv.Signal = _G.require("inky.luv")
+lua.lib.luv.Thread = _G.require("inky.luv")
+lua.lib.luv.Timer = _G.require("inky.luv")
 lua.lib.luv.fs = {}
-lua.lib.luv.fs.FileSystem = _G.require("luv")
+lua.lib.luv.fs.FileSystem = _G.require("inky.luv")
 lua.lib.luv.net = {}
-lua.lib.luv.net.Tcp = _G.require("luv")
+lua.lib.luv.net.Tcp = _G.require("inky.luv")
 local sys = {}
 sys.FileSystem = _hx_e()
 sys.io = {}
@@ -13938,5 +13938,5 @@ _hx_table.maxn = _G.table.maxn or function(t)
   return maxn
 end;
 _hx_static_init();
-InkRuntime.main()
+--InkRuntime.main()
 return _hx_exports
